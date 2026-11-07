@@ -84,7 +84,29 @@
                         </li>
                     </ul>
                 </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        {{ auth()->user()->name }}
+                    </a>
+
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" 
+                            onclick="event.preventDefault
+                            (); document.getElementById('logout').submit();" style="cursor:pointer;">
+                                Logout
+                            </a>
+                            <form id="logout" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
+                        </li>
+                    </ul>
                 </li>
+            </li>
             </ul>
         </div>
     </div>
