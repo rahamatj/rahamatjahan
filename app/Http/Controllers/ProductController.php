@@ -41,8 +41,8 @@ class ProductController extends Controller
             'sub_category_id' => 'required|integer',
             'description' => 'required|string|max:255',
             'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'old_price' => 'nullable|decimal:2',
-            'new_price' => 'nullable|decimal:2'
+            'old_price' => 'nullable|numeric',
+            'new_price' => 'nullable|numeric'
         ]);
 
         $validated['image'] = $request->file('image')->store('products', 'public');
@@ -67,7 +67,11 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        return view('admin.products.edit', [
+            'product' => $product,
+            'categories' => Category::all(),
+            'subCategories' => SubCategory::all()
+        ]);
     }
 
     /**
@@ -75,7 +79,27 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|integer',
+            'sub_category_id' => 'required|integer',
+            'description' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'old_price' => 'nullable|numeric',
+            'new_price' => 'nullable|numeric'
+        ]);
+
+        if ($request->hasFile('image')) {
+            Storage::disk('public')->delete($product->image);
+
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        $validated['slug'] = \Str::slug($request->name);
+
+        $product->update($validated);
+
+        return redirect()->route('products.index');
     }
 
     /**
@@ -83,7 +107,13 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        if ($product->image) {
+            \Storage::disk('public')->delete($product->image);
+        }
+        
+        $product->delete();
+
+        return redirect()->route('products.index');
     }
 
     public function getSubCategories($id) {
